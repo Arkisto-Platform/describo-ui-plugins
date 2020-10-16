@@ -11,7 +11,7 @@ Usage:
     v-if="onedrive"
     :client-id="onedrive.clientID"
     :redirect-uri="onedrive.redirectURI"
-    v-on:rclone-configuration="postRcloneConfiguration"
+    @rclone-configuration="handleRcloneConfiguration"
 />
 ```
 
@@ -20,4 +20,8 @@ The component takes two parameters:
 -   client-id
 -   repositroy-id
 
-And it will emit an rclone configuration to do with as you like.
+## Events
+
+-   @rclone-configuration: a configuration object to be used with rclone
+-   @account: the user account information
+-   @token: the user authorization token

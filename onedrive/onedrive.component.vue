@@ -81,39 +81,38 @@ export default {
 
             // log user in
             const userAgentApplication = new UserAgentApplication(config);
-            const user = await userAgentApplication.loginPopup({ scopes });
-            if (userAgentApplication.getAccount()) {
-                // console.log(userAgentApplication.getAccount());
-                // get user token
-                const account = userAgentApplication.getAccount();
-                const token = await userAgentApplication.acquireTokenSilent({
-                    scopes,
-                });
+            if (!userAgentApplication.getAccount()) {
+                await userAgentApplication.loginPopup({ scopes });
+            }
+            // get user account info and token
+            const account = userAgentApplication.getAccount();
+            const token = await userAgentApplication.acquireTokenSilent({
+                scopes,
+            });
 
-                const msalApplication = new UserAgentApplication(config);
-                const options = new MSALAuthenticationProviderOptions(scopes);
-                const authProvider = new ImplicitMSALAuthenticationProvider(
-                    msalApplication,
-                    options
-                );
-                const client = Client.initWithMiddleware({ authProvider });
+            const msalApplication = new UserAgentApplication(config);
+            const options = new MSALAuthenticationProviderOptions(scopes);
+            const authProvider = new ImplicitMSALAuthenticationProvider(
+                msalApplication,
+                options
+            );
+            const client = Client.initWithMiddleware({ authProvider });
 
-                // get user drive
-                let drives = (
-                    await client
-                        .api(`/users/${user.accountIdentifier}/drives`)
-                        .get()
-                ).value;
+            // get user drive
+            let drives = (
+                await client
+                    .api(`/users/${account.accountIdentifier}/drives`)
+                    .get()
+            ).value;
 
-                if (drives.length > 1) this.drives = drives;
-                if (drives.length === 1) this.selectedDrive = drives[0];
-                this.account = account;
-                this.token = token;
-                this.$emit("account", account);
-                this.$emit("token", token);
-                if (this.selectedDrive) {
-                    this.emitRcloneConfigurationData();
-                }
+            if (drives.length > 1) this.drives = drives;
+            if (drives.length === 1) this.selectedDrive = drives[0];
+            this.account = account;
+            this.token = token;
+            this.$emit("account", account);
+            this.$emit("token", token);
+            if (this.selectedDrive) {
+                this.emitRcloneConfigurationData();
             }
         },
         emitRcloneConfigurationData() {

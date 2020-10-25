@@ -116,11 +116,14 @@ export default {
             }
         },
         emitRcloneConfigurationData() {
+            const drive = this.drives.filter(
+                (d) => d.id === this.selectedDrive
+            )[0];
             this.$emit("rclone-configuration", {
                 type: "onedrive",
                 token: { access_token: this.token.accessToken },
-                drive_id: this.selectedDrive.id,
-                drive_type: this.selectedDrive.driveType,
+                drive_id: drive.id,
+                drive_type: drive.driveType,
             });
             this.loggingIn = false;
             this.loggedIn = true;

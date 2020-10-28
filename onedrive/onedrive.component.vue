@@ -34,30 +34,7 @@
 </template>
 
 <script>
-import { UserAgentApplication } from "msal";
-import { ImplicitMSALAuthenticationProvider } from "@microsoft/microsoft-graph-client/lib/src/ImplicitMSALAuthenticationProvider";
-import { MSALAuthenticationProviderOptions } from "@microsoft/microsoft-graph-client/lib/src/MSALAuthenticationProviderOptions";
-import { Client } from "@microsoft/microsoft-graph-client";
-const scopes = [
-    "Files.Read",
-    "Files.ReadWrite",
-    "Files.Read.All",
-    "Files.ReadWrite.All",
-    "offline_access",
-    "Sites.Read.All",
-];
-
 export default {
-    props: {
-        clientId: {
-            type: String,
-            required: true,
-        },
-        redirectUri: {
-            type: String,
-            required: true,
-        },
-    },
     data() {
         return {
             loggingIn: false,
@@ -72,45 +49,9 @@ export default {
         async login() {
             this.loggingIn = true;
             this.loggedIn = false;
-            const config = {
-                auth: {
-                    clientId: this.clientId,
-                    redirectUri: this.redirectUri,
-                },
-            };
-
-            // log user in
-            const userAgentApplication = new UserAgentApplication(config);
-            if (!userAgentApplication.getAccount()) {
-                await userAgentApplication.loginPopup({ scopes });
-            }
-            // get user account info and token
-            const account = userAgentApplication.getAccount();
-            const token = await userAgentApplication.acquireTokenSilent({
-                scopes,
-            });
-
-            const msalApplication = new UserAgentApplication(config);
-            const options = new MSALAuthenticationProviderOptions(scopes);
-            const authProvider = new ImplicitMSALAuthenticationProvider(
-                msalApplication,
-                options
-            );
-            const client = Client.initWithMiddleware({ authProvider });
-
-            // get user drive
-            let drives = (
-                await client
-                    .api(`/users/${account.accountIdentifier}/drives`)
-                    .get()
-            ).value;
-
+            let { drives } = await this.$onedriveAuthenticationManager.login();
             if (drives.length > 1) this.drives = drives;
             if (drives.length === 1) this.selectedDrive = drives[0];
-            this.account = account;
-            this.token = token;
-            this.$emit("account", account);
-            this.$emit("token", token);
             if (this.selectedDrive) {
                 this.emitRcloneConfigurationData();
             }
@@ -121,7 +62,10 @@ export default {
             )[0];
             this.$emit("rclone-configuration", {
                 type: "onedrive",
-                token: { access_token: this.token.accessToken },
+                token: {
+                    access_token: this.$onedriveAuthenticationManager.getToken()
+                        .accessToken,
+                },
                 drive_id: drive.id,
                 drive_type: drive.driveType,
             });

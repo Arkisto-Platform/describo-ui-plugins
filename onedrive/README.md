@@ -33,6 +33,7 @@ Install these dependencies in the app in which you use this plugin.
     Vue.use(OneDrivePlugin, {
         clientId: configuration.services.onedrive.clientId,
         redirectUri: configuration.services.onedrive.redirectUri,
+        log: ...somelogger
     });
 ```
 

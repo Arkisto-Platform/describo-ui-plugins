@@ -4,7 +4,8 @@ import { MSALAuthenticationProviderOptions } from "@microsoft/microsoft-graph-cl
 import { Client } from "@microsoft/microsoft-graph-client";
 
 export default class AuthManager {
-    constructor({ clientId, redirectUri }) {
+    constructor({ clientId, redirectUri, log }) {
+        this.$log = log;
         this.config = {
             auth: { clientId, redirectUri },
         };
@@ -31,6 +32,7 @@ export default class AuthManager {
     }
 
     async refreshToken() {
+        this.$log.debug("Refreshing onedrive token");
         // log user in
         const userAgentApplication = new UserAgentApplication(this.config);
         if (!userAgentApplication.getAccount()) {

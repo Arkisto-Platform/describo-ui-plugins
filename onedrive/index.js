@@ -12,6 +12,7 @@ export default {
         Vue.prototype.$onedriveAuthenticationManager = new AuthManager({
             clientId: options.clientID,
             redirectUri: options.redirectURI,
+            log: options.log,
         });
         Vue.component(
             "OnedriveAuthenticatorComponent",

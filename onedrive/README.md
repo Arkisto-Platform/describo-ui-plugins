@@ -9,22 +9,39 @@ Usage:
 ```
 <onedrive-authenticator-component
     v-if="onedrive"
-    :client-id="onedrive.clientID"
-    :redirect-uri="onedrive.redirectURI"
     @rclone-configuration="handleRcloneConfiguration"
 />
 ```
 
-The component takes two parameters:
+And it registers one service: `this.$onedriveAuthenticationManager`:
 
--   client-id
--   repositroy-id
+-   To get the account info of the user: `this.$onedriveAuthenticationManager.getAccount()`
+-   To get the current access token: `this.$onedriveAuthenticationManager.getToken()`
+
+# Dependencies
+
+Install these dependencies in the app in which you use this plugin.
+
+-   npm install --save "@microsoft/microsoft-graph-client"
+-   npm install --save msal
+
+## Using the plugin
+
+### Register the plugin with vue
+
+```
+    Vue.use(OneDrivePlugin, {
+        clientId: configuration.services.onedrive.clientId,
+        redirectUri: configuration.services.onedrive.redirectUri,
+    });
+```
+
+The plugin sets up a watcher through the authentication manager that checks the validity of the token
+every two minutes and refreshes it when it has less than five minutes left.
 
 ## Events
 
 -   @rclone-configuration: a configuration object to be used with rclone
--   @account: the user account information
--   @token: the user authorization token
 
 ## Setting up Azure
 
@@ -62,3 +79,7 @@ When you `Add a permission` you will be asked to choose an API. Select `Microsof
 ### Get the configuration data
 
 You will need the `Application (client) ID` from the overview page and the `Redirect URI` from the `Platform configurations` section of the `Authentication` tab.
+
+```
+
+```

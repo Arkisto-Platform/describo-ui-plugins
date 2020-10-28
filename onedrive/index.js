@@ -13,7 +13,6 @@ export default {
             clientId: options.clientID,
             redirectUri: options.redirectURI,
         });
-        Vue.prototype.$onedriveAuthenticationManager.watchAndRefreshToken();
         Vue.component(
             "OnedriveAuthenticatorComponent",
             OneDriveAuthenticatorComponent

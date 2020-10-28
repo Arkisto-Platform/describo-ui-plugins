@@ -18,6 +18,8 @@ export default class AuthManager {
         ];
         this.tokenKey = "onedriveAccessToken";
         this.accountKey = "onedriveAccount";
+        this.tokenRefreshHandle = undefined;
+        this.refreshTokenIn = 50 * 60 * 1000; // 50 minutes in milliseconds
     }
 
     getAccount() {
@@ -26,26 +28,6 @@ export default class AuthManager {
 
     getToken() {
         return JSON.parse(window.sessionStorage.getItem(this.tokenKey));
-    }
-
-    watchAndRefreshToken() {
-        // check it every 2 minutes
-        setInterval(checkToken.bind(this), 120000);
-        function checkToken() {
-            const token = JSON.parse(
-                window.sessionStorage.getItem(this.tokenKey)
-            );
-            if (token) {
-                const timeLeft =
-                    Date.parse(token.expiresOn).valueOf() -
-                    new Date().valueOf();
-                // refresh if less than 5 minutes left
-                if (timeLeft < 360000) {
-                    console.log("refreshing access token");
-                    this.refreshToken();
-                }
-            }
-        }
     }
 
     async refreshToken() {
@@ -65,6 +47,13 @@ export default class AuthManager {
 
         window.sessionStorage.setItem(this.tokenKey, JSON.stringify(token));
         window.sessionStorage.setItem(this.accountKey, JSON.stringify(account));
+        if (this.tokenRefreshHandle) {
+            clearTimeout(this.tokenRefreshHandle);
+        }
+        this.tokenRefreshHandle = setTimeout(
+            this.refreshToken.bind(this),
+            this.refreshTokenIn
+        );
 
         return { account, token };
     }

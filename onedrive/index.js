@@ -5,11 +5,13 @@ export default {
     install(Vue, options) {
         Vue.mixin({
             beforeDestroy() {
-                delete Vue.prototype.$onedriveAuthenticationManager;
+                delete Vue.prototype.onedriveAuthenticationManager;
             },
         });
 
-        Vue.prototype.$onedriveAuthenticationManager = new AuthManager({
+        let log = options.log;
+        log.debug("instantiate onedrive auth manager and attach to prototype");
+        Vue.prototype.onedriveAuthenticationManager = new AuthManager({
             clientId: options.clientID,
             redirectUri: options.redirectURI,
             log: options.log,

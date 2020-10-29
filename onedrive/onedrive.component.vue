@@ -49,7 +49,7 @@ export default {
         async login() {
             this.loggingIn = true;
             this.loggedIn = false;
-            let { drives } = await this.$onedriveAuthenticationManager.login();
+            let { drives } = await this.onedriveAuthenticationManager.login();
             if (drives.length > 1) this.drives = drives;
             if (drives.length === 1) this.selectedDrive = drives[0];
             if (this.selectedDrive) {
@@ -63,7 +63,7 @@ export default {
             this.$emit("rclone-configuration", {
                 type: "onedrive",
                 token: {
-                    access_token: this.$onedriveAuthenticationManager.getToken()
+                    access_token: this.onedriveAuthenticationManager.getToken()
                         .accessToken,
                 },
                 drive_id: drive.id,

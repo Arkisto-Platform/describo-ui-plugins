@@ -13,10 +13,10 @@ Usage:
 />
 ```
 
-And it registers one service: `this.$onedriveAuthenticationManager`:
+And it registers one service: `this.onedriveAuthenticationManager`:
 
--   To get the account info of the user: `this.$onedriveAuthenticationManager.getAccount()`
--   To get the current access token: `this.$onedriveAuthenticationManager.getToken()`
+-   To get the account info of the user: `this.onedriveAuthenticationManager.getAccount()`
+-   To get the current access token: `this.onedriveAuthenticationManager.getToken()`
 
 # Dependencies
 

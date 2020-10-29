@@ -9,7 +9,7 @@
                 login to Microsoft OneDrive
             </el-button>
         </div>
-        <div v-if="loggingIn">
+        <div v-if="loggingIn" class="flex-grow">
             <el-select
                 v-if="drives && drives.length"
                 class="w-full"

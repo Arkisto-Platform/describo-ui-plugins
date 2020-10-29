@@ -1,13 +1,8 @@
 import OneDriveAuthenticatorComponent from "./onedrive.component.vue";
 import AuthManager from "./auth-manager.service";
 export default {
-    // called by Vue.use(FirstPlugin)
     install(Vue, options) {
-        Vue.mixin({
-            beforeDestroy() {
-                delete Vue.prototype.onedriveAuthenticationManager;
-            },
-        });
+        Vue.mixin({});
 
         let log = options.log;
         log.debug("instantiate onedrive auth manager and attach to prototype");

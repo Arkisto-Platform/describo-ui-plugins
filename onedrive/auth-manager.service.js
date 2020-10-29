@@ -2,6 +2,7 @@ import { UserAgentApplication } from "msal";
 import { ImplicitMSALAuthenticationProvider } from "@microsoft/microsoft-graph-client/lib/src/ImplicitMSALAuthenticationProvider";
 import { MSALAuthenticationProviderOptions } from "@microsoft/microsoft-graph-client/lib/src/MSALAuthenticationProviderOptions";
 import { Client } from "@microsoft/microsoft-graph-client";
+import Vue from "vue";
 
 export default class AuthManager {
     constructor({ clientId, redirectUri, log }) {
@@ -21,6 +22,9 @@ export default class AuthManager {
         this.accountKey = "onedriveAccount";
         this.tokenRefreshHandle = undefined;
         this.refreshTokenIn = 50 * 60 * 1000; // 50 minutes in milliseconds
+        this.httpService = undefined;
+        this.api = undefined;
+        this.configuration = undefined;
     }
 
     getAccount() {
@@ -45,7 +49,7 @@ export default class AuthManager {
         const token = await userAgentApplication.acquireTokenSilent({
             scopes: this.scopes,
         });
-        this.token = token;
+        this.token = Vue.observable(token);
 
         window.sessionStorage.setItem(this.tokenKey, JSON.stringify(token));
         window.sessionStorage.setItem(this.accountKey, JSON.stringify(account));
@@ -56,6 +60,16 @@ export default class AuthManager {
             this.refreshToken.bind(this),
             this.refreshTokenIn
         );
+
+        if (this.httpService && this.api && this.configuration) {
+            this.configuration = {
+                ...this.configuration,
+                token: {
+                    access_token: this.getToken().accessToken,
+                },
+            };
+            this.save({});
+        }
 
         return { account, token };
     }
@@ -77,5 +91,16 @@ export default class AuthManager {
         ).value;
 
         return { drives };
+    }
+
+    async save({ httpService, api, configuration }) {
+        this.$log.debug("Saving onedrive configuration back to the API");
+        if (httpService) this.httpService = httpService;
+        if (api) this.api = api;
+        if (configuration) this.configuration = configuration;
+        await this.httpService.post({
+            route: this.api,
+            body: this.configuration,
+        });
     }
 }

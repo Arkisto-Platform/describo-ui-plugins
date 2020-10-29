@@ -15,7 +15,7 @@
                 class="w-full"
                 v-model="selectedDrive"
                 placeholder="Select the OneDrive to work with"
-                @change="emitRcloneConfigurationData"
+                @change="saveConfiguration"
             >
                 <el-option
                     v-for="drive of drives"
@@ -34,7 +34,15 @@
 </template>
 
 <script>
+import HTTPService from "@/components//http.service";
+
 export default {
+    props: {
+        api: {
+            type: String,
+            required: true,
+        },
+    },
     data() {
         return {
             loggingIn: false,
@@ -53,14 +61,14 @@ export default {
             if (drives.length > 1) this.drives = drives;
             if (drives.length === 1) this.selectedDrive = drives[0];
             if (this.selectedDrive) {
-                this.emitRcloneConfigurationData();
+                this.saveConfiguration();
             }
         },
-        emitRcloneConfigurationData() {
+        async saveConfiguration() {
             const drive = this.drives.filter(
                 (d) => d.id === this.selectedDrive
             )[0];
-            this.$emit("rclone-configuration", {
+            let configuration = {
                 type: "onedrive",
                 token: {
                     access_token: this.onedriveAuthenticationManager.getToken()
@@ -68,9 +76,16 @@ export default {
                 },
                 drive_id: drive.id,
                 drive_type: drive.driveType,
+            };
+            const httpService = new HTTPService({ $auth: this.$auth });
+            await this.onedriveAuthenticationManager.save({
+                httpService,
+                api: this.api,
+                configuration,
             });
             this.loggingIn = false;
             this.loggedIn = true;
+            this.$emit("set-resource");
         },
     },
 };

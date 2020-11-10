@@ -10,7 +10,9 @@ export default {
     props: {
         path: {
             type: String,
-            required: true,
+        },
+        id: {
+            type: String,
         },
     },
     data() {
@@ -26,7 +28,13 @@ export default {
     methods: {
         async getFilePreview() {
             const client = this.onedriveAuthenticationManager.apiClient;
-            let link = `/me/drive/root:${this.path}:/preview`;
+            let link;
+            if (this.path) {
+                link = `/me/drive/root:${this.path}:/preview`;
+            } else if (this.id) {
+                let id = this.id.match("#") ? this.id.split("#")[1] : this.id;
+                link = `/me/drive/items/${id}/preview`;
+            }
             try {
                 link = await client.api(link).post({
                     viewer: "onedrive",

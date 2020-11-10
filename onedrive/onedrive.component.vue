@@ -8,6 +8,13 @@
             >
                 login to Microsoft OneDrive
             </el-button>
+            <!-- <el-button
+                type="primary"
+                @click.prevent="logout"
+                :disabled="!loggedIn"
+            >
+                logout of out Microsoft OneDrive
+            </el-button> -->
         </div>
         <div v-if="loggingIn" class="flex-grow">
             <el-select
@@ -58,11 +65,14 @@ export default {
             this.loggingIn = true;
             this.loggedIn = false;
             let { drives } = await this.onedriveAuthenticationManager.login();
-            if (drives.length > 1) this.drives = drives;
-            if (drives.length === 1) this.selectedDrive = drives[0];
+            this.drives = drives;
+            if (drives.length === 1) this.selectedDrive = drives[0].id;
             if (this.selectedDrive) {
                 this.saveConfiguration();
             }
+        },
+        async logout() {
+            this.onedriveAuthenticationManager.logout();
         },
         async saveConfiguration() {
             const drive = this.drives.filter(

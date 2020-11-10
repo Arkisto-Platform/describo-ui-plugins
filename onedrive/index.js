@@ -1,4 +1,5 @@
-import OneDriveAuthenticatorComponent from "./onedrive.component.vue";
+import OnedriveAuthenticatorComponent from "./onedrive.component.vue";
+import OnedriveFilePreviewComponent from "./preview.component.vue";
 import AuthManager from "./auth-manager.service";
 export default {
     install(Vue, options) {
@@ -13,7 +14,11 @@ export default {
         });
         Vue.component(
             "OnedriveAuthenticatorComponent",
-            OneDriveAuthenticatorComponent
+            OnedriveAuthenticatorComponent
+        );
+        Vue.component(
+            "OnedriveFilePreviewComponent",
+            OnedriveFilePreviewComponent
         );
     },
 };

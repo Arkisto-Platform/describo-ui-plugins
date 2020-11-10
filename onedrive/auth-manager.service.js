@@ -25,6 +25,7 @@ export default class AuthManager {
         this.httpService = undefined;
         this.api = undefined;
         this.configuration = undefined;
+        this.apiClient = undefined;
     }
 
     getAccount() {
@@ -43,12 +44,19 @@ export default class AuthManager {
             await userAgentApplication.loginPopup({ scopes: this.scopes });
         }
         // get user account info and token
-        const account = userAgentApplication.getAccount();
+        let account = userAgentApplication.getAccount();
         this.account = account;
 
-        const token = await userAgentApplication.acquireTokenSilent({
-            scopes: this.scopes,
-        });
+        let token;
+        try {
+            token = await userAgentApplication.acquireTokenSilent({
+                scopes: this.scopes,
+            });
+        } catch (error) {
+            await userAgentApplication.loginPopup({ scopes: this.scopes });
+            account = userAgentApplication.getAccount();
+            this.account = account;
+        }
         this.token = Vue.observable(token);
 
         window.sessionStorage.setItem(this.tokenKey, JSON.stringify(token));
@@ -75,7 +83,7 @@ export default class AuthManager {
     }
 
     async login() {
-        let { account } = await this.refreshToken();
+        await this.refreshToken();
 
         const msalApplication = new UserAgentApplication(this.config);
         const options = new MSALAuthenticationProviderOptions(this.scopes);
@@ -83,14 +91,24 @@ export default class AuthManager {
             msalApplication,
             options
         );
-        const client = Client.initWithMiddleware({ authProvider });
+        this.apiClient = Client.initWithMiddleware({ authProvider });
 
         // get user drive
-        let drives = (
-            await client.api(`/users/${account.accountIdentifier}/drives`).get()
-        ).value;
+        let drives = (await this.apiClient.api(`/me/drives`).get()).value;
 
         return { drives };
+    }
+
+    async logout() {
+        const config = {
+            ...this.config,
+            postLogoutRedirectUri: window.location.origin,
+        };
+        const msalApplication = new UserAgentApplication(config);
+        const logoutRequest = {
+            account: this.account.userName,
+        };
+        msalApplication.logout(logoutRequest);
     }
 
     async save({ httpService, api, configuration }) {

@@ -23,13 +23,13 @@
                 <el-option
                     v-for="drive of drives"
                     :key="drive.id"
-                    :label="drive.id"
+                    :label="drive.webUrl"
                     :value="drive.id"
                 >
-                    <span class="text-left">{{ drive.driveType }}</span>
+                    <!-- <span class="text-left">{{ drive.driveType }}</span>
                     <span class="text-right text-gray-600">
                         {{ drive.id }}
-                    </span>
+                    </span> -->
                 </el-option>
             </el-select>
         </div>
@@ -60,7 +60,6 @@ export default {
         async login() {
             this.loggingIn = true;
             this.loggedIn = false;
-            // let { drives } = await this.onedriveAuthenticationManager.login();
             await this.onedriveAuthenticationManager.login();
             let { drives } = await this.onedriveAuthenticationManager.loadDrives();
             this.drives = drives;

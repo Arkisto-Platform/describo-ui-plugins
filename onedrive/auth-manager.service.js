@@ -91,6 +91,7 @@ export default class AuthManager {
     async loadDrives() {
         // get user drive
         let drives = (await this.apiClient.api(`/me/drives`).get()).value;
+        drives = drives.filter((d) => !d.webUrl.match("PreservationHoldLibrary"));
 
         return { drives };
     }

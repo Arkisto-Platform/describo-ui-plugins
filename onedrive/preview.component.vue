@@ -1,12 +1,9 @@
 <template>
     <div class="flex flex-col">
-        <!-- <div><el-button @click="getFilePreview">get preview</el-button></div> -->
         <iframe :src="link" title="" v-if="link" class="flex-grow"></iframe>
-        <div class="flex flex-col justify-center items-center">
+        <div class="flex flex-col justify-center items-center h-64" v-if="!link">
+            <div v-loading="loading" class="w-10 h-10"></div>
             <div v-if="error" class="flex flex-row">
-                <!-- <div class="text-red-600 text-3xl mr-2">
-                <i class="fas fa-exclamation-circle"></i>
-            </div> -->
                 <div class="text-base pt-1">
                     {{ error }}
                 </div>
@@ -27,6 +24,7 @@ export default {
     },
     data() {
         return {
+            loading: false,
             link: undefined,
             error: undefined,
         };
@@ -38,6 +36,7 @@ export default {
     },
     methods: {
         async getFilePreview() {
+            this.loading = true;
             const client = this.onedriveAuthenticationManager.apiClient;
             let link;
             if (this.path) {
@@ -54,9 +53,9 @@ export default {
                 });
                 this.link = link.getUrl;
             } catch (error) {
-                this.error = "Preview not available at this time";
-                console.log(error.message);
+                this.error = `Preview not available at this time: ${error.message}`;
             }
+            this.loading = false;
         },
     },
 };

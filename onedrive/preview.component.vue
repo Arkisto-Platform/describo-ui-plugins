@@ -1,7 +1,15 @@
 <template>
-    <div class="flex flex-col">
+    <div class="flex flex-col justify-center items-center">
         <!-- <div><el-button @click="getFilePreview">get preview</el-button></div> -->
         <iframe :src="link" title="" v-if="link" class="flex-grow"></iframe>
+        <div v-if="error" class="flex flex-row">
+            <!-- <div class="text-red-600 text-3xl mr-2">
+                <i class="fas fa-exclamation-circle"></i>
+            </div> -->
+            <div class="text-base pt-1">
+                {{ error }}
+            </div>
+        </div>
     </div>
 </template>
 
@@ -18,6 +26,7 @@ export default {
     data() {
         return {
             link: undefined,
+            error: undefined,
         };
     },
     mounted() {
@@ -43,7 +52,8 @@ export default {
                 });
                 this.link = link.getUrl;
             } catch (error) {
-                console.log(error);
+                this.error = "Preview not available at this time";
+                console.log(error.message);
             }
         },
     },

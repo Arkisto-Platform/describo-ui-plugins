@@ -1,11 +1,7 @@
 <template>
     <div class="flex flex-row">
         <div class="mr-2">
-            <el-button
-                type="primary"
-                @click.prevent="login"
-                :disabled="loggedIn || loggingIn"
-            >
+            <el-button type="primary" @click.prevent="login" :disabled="loggedIn || loggingIn">
                 login to Microsoft OneDrive
             </el-button>
             <!-- <el-button
@@ -64,7 +60,9 @@ export default {
         async login() {
             this.loggingIn = true;
             this.loggedIn = false;
-            let { drives } = await this.onedriveAuthenticationManager.login();
+            // let { drives } = await this.onedriveAuthenticationManager.login();
+            await this.onedriveAuthenticationManager.login();
+            let { drives } = await this.onedriveAuthenticationManager.loadDrives();
             this.drives = drives;
             if (drives.length === 1) this.selectedDrive = drives[0].id;
             if (this.selectedDrive) {
@@ -75,14 +73,11 @@ export default {
             this.onedriveAuthenticationManager.logout();
         },
         async saveConfiguration() {
-            const drive = this.drives.filter(
-                (d) => d.id === this.selectedDrive
-            )[0];
+            const drive = this.drives.filter((d) => d.id === this.selectedDrive)[0];
             let configuration = {
                 type: "onedrive",
                 token: {
-                    access_token: this.onedriveAuthenticationManager.getToken()
-                        .accessToken,
+                    access_token: this.onedriveAuthenticationManager.getToken().accessToken,
                 },
                 drive_id: drive.id,
                 drive_type: drive.driveType,

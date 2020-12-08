@@ -64,10 +64,7 @@ export default class AuthManager {
         if (this.tokenRefreshHandle) {
             clearTimeout(this.tokenRefreshHandle);
         }
-        this.tokenRefreshHandle = setTimeout(
-            this.refreshToken.bind(this),
-            this.refreshTokenIn
-        );
+        this.tokenRefreshHandle = setTimeout(this.refreshToken.bind(this), this.refreshTokenIn);
 
         if (this.httpService && this.api && this.configuration) {
             this.configuration = {
@@ -87,12 +84,11 @@ export default class AuthManager {
 
         const msalApplication = new UserAgentApplication(this.config);
         const options = new MSALAuthenticationProviderOptions(this.scopes);
-        const authProvider = new ImplicitMSALAuthenticationProvider(
-            msalApplication,
-            options
-        );
+        const authProvider = new ImplicitMSALAuthenticationProvider(msalApplication, options);
         this.apiClient = Client.initWithMiddleware({ authProvider });
+    }
 
+    async loadDrives() {
         // get user drive
         let drives = (await this.apiClient.api(`/me/drives`).get()).value;
 

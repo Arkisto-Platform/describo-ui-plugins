@@ -1,13 +1,15 @@
 <template>
-    <div class="flex flex-col justify-center items-center">
+    <div class="flex flex-col">
         <!-- <div><el-button @click="getFilePreview">get preview</el-button></div> -->
         <iframe :src="link" title="" v-if="link" class="flex-grow"></iframe>
-        <div v-if="error" class="flex flex-row">
-            <!-- <div class="text-red-600 text-3xl mr-2">
+        <div class="flex flex-col justify-center items-center">
+            <div v-if="error" class="flex flex-row">
+                <!-- <div class="text-red-600 text-3xl mr-2">
                 <i class="fas fa-exclamation-circle"></i>
             </div> -->
-            <div class="text-base pt-1">
-                {{ error }}
+                <div class="text-base pt-1">
+                    {{ error }}
+                </div>
             </div>
         </div>
     </div>

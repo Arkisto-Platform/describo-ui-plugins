@@ -1,14 +1,13 @@
-import { UserAgentApplication } from "msal";
-import { ImplicitMSALAuthenticationProvider } from "@microsoft/microsoft-graph-client/lib/src/ImplicitMSALAuthenticationProvider";
-import { MSALAuthenticationProviderOptions } from "@microsoft/microsoft-graph-client/lib/src/MSALAuthenticationProviderOptions";
-import { Client } from "@microsoft/microsoft-graph-client";
-import Vue from "vue";
+import * as msal from "@azure/msal-browser";
 
 export default class AuthManager {
     constructor({ clientId, redirectUri, log }) {
         this.$log = log;
         this.config = {
             auth: { clientId, redirectUri },
+            cache: {
+                cacheLocation: "sessionStorage",
+            },
         };
         this.scopes = [
             "Files.Read",
@@ -18,6 +17,7 @@ export default class AuthManager {
             "offline_access",
             "Sites.Read.All",
         ];
+        this.graphEndpoint = "https://graph.microsoft.com/v1.0";
         this.tokenKey = "onedriveAccessToken";
         this.accountKey = "onedriveAccount";
         this.tokenRefreshHandle = undefined;
@@ -26,6 +26,9 @@ export default class AuthManager {
         this.api = undefined;
         this.configuration = undefined;
         this.apiClient = undefined;
+        this.msalInstance = undefined;
+        let account = this.getAccount();
+        this.account = account ? account : undefined;
     }
 
     getAccount() {
@@ -38,29 +41,34 @@ export default class AuthManager {
 
     async refreshToken() {
         this.$log.debug("Refreshing onedrive token");
-        // log user in
-        const userAgentApplication = new UserAgentApplication(this.config);
-        if (!userAgentApplication.getAccount()) {
-            await userAgentApplication.loginPopup({ scopes: this.scopes });
-        }
-        // get user account info and token
-        let account = userAgentApplication.getAccount();
-        this.account = account;
 
+        this.msalInstance = new msal.PublicClientApplication(this.config);
+
+        const request = {
+            scopes: this.scopes,
+            loginHint: this.account?.username,
+        };
+        let loginResponse;
+        try {
+            loginResponse = await this.msalInstance.ssoSilent(request);
+        } catch (error) {
+            loginResponse = await this.msalInstance.loginPopup(request);
+        }
+
+        this.account = this.msalInstance.getAllAccounts().pop();
+        window.sessionStorage.setItem(this.accountKey, JSON.stringify(this.account));
+
+        request.account = this.account;
         let token;
         try {
-            token = await userAgentApplication.acquireTokenSilent({
-                scopes: this.scopes,
-            });
+            token = await this.msalInstance.acquireTokenSilent(request);
+            // if (!token) token = await msalInstance.acquireTokenPopup(request);
         } catch (error) {
-            await userAgentApplication.loginPopup({ scopes: this.scopes });
-            account = userAgentApplication.getAccount();
-            this.account = account;
+            token = await this.msalInstance.acquireTokenPopup(request);
         }
-        this.token = Vue.observable(token);
 
         window.sessionStorage.setItem(this.tokenKey, JSON.stringify(token));
-        window.sessionStorage.setItem(this.accountKey, JSON.stringify(account));
+
         if (this.tokenRefreshHandle) {
             clearTimeout(this.tokenRefreshHandle);
         }
@@ -76,21 +84,17 @@ export default class AuthManager {
             this.save({});
         }
 
-        return { account, token };
+        return { account: this.account, token };
     }
 
     async login() {
         await this.refreshToken();
-
-        const msalApplication = new UserAgentApplication(this.config);
-        const options = new MSALAuthenticationProviderOptions(this.scopes);
-        const authProvider = new ImplicitMSALAuthenticationProvider(msalApplication, options);
-        this.apiClient = Client.initWithMiddleware({ authProvider });
     }
 
     async loadDrives() {
         // get user drive
-        let drives = (await this.apiClient.api(`/me/drives`).get()).value;
+        let drives = await this.client({ endpoint: "/me/drives" });
+        drives = drives.value;
         drives = drives.filter((d) => !d.webUrl.match("PreservationHoldLibrary"));
 
         return { drives };
@@ -117,5 +121,31 @@ export default class AuthManager {
             route: this.api,
             body: this.configuration,
         });
+    }
+
+    async client({ endpoint }) {
+        const bearer = `Bearer ${this.getToken().accessToken}`;
+        endpoint = `${this.graphEndpoint}${endpoint}`;
+
+        const headers = new Headers();
+        headers.append("Authorization", bearer);
+
+        const options = {
+            method: "GET",
+            headers: headers,
+        };
+
+        // console.log(`request made to Graph API ${endpoint}: ` + new Date().toString());
+
+        try {
+            let response = await fetch(endpoint, options);
+            if (response.status !== 200) {
+                //  handle error
+                console.log(response);
+            }
+            return await response.json();
+        } catch (error) {
+            console.log(error);
+        }
     }
 }

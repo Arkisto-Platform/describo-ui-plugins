@@ -1,5 +1,17 @@
 # describo-ui-plugins : onedrive
 
+- [describo-ui-plugins : onedrive](#describo-ui-plugins--onedrive)
+- [Dependencies](#dependencies)
+  - [Using the plugin](#using-the-plugin)
+    - [Register the plugin with vue](#register-the-plugin-with-vue)
+  - [Events](#events)
+  - [Setting up Azure](#setting-up-azure)
+    - [Register the application](#register-the-application)
+    - [Authentication](#authentication)
+      - [API permissions](#api-permissions)
+    - [Get the configuration data](#get-the-configuration-data)
+    - [Developer Documentation](#developer-documentation)
+
 A plugin providing a component to authenticate to Microsoft and produce an rclone configuration for onedrive access.
 
 The plugin has one component: `onedrive-authenticator-component`
@@ -48,9 +60,9 @@ every two minutes and refreshes it when it has less than five minutes left.
 
 In order to use this plugin you firstly need to create a registration for this application. This applies to both development and production.
 
-### Register the application
+Follow the documentation at [https://docs.microsoft.com/en-us/azure/active-directory/develop/scenario-spa-app-registration](https://docs.microsoft.com/en-us/azure/active-directory/develop/scenario-spa-app-registration). Specifically, follow the `MSAL.js 2.0 with auth code` flow docs.
 
-Sign in to [https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade](https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade)
+### Register the application
 
 -   Register an application
     -   name: `describo-online-onedrive`
@@ -81,6 +93,6 @@ When you `Add a permission` you will be asked to choose an API. Select `Microsof
 
 You will need the `Application (client) ID` from the overview page and the `Redirect URI` from the `Platform configurations` section of the `Authentication` tab.
 
-```
+### Developer Documentation
 
-```
+-   https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-browser

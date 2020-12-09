@@ -4,13 +4,6 @@
             <el-button type="primary" @click.prevent="login" :disabled="loggedIn || loggingIn">
                 login to Microsoft OneDrive
             </el-button>
-            <!-- <el-button
-                type="primary"
-                @click.prevent="logout"
-                :disabled="!loggedIn"
-            >
-                logout of out Microsoft OneDrive
-            </el-button> -->
         </div>
         <div v-if="loggingIn" class="flex-grow">
             <el-select
@@ -26,10 +19,6 @@
                     :label="drive.webUrl"
                     :value="drive.id"
                 >
-                    <!-- <span class="text-left">{{ drive.driveType }}</span>
-                    <span class="text-right text-gray-600">
-                        {{ drive.id }}
-                    </span> -->
                 </el-option>
             </el-select>
         </div>

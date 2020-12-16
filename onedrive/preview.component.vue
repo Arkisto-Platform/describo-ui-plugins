@@ -37,20 +37,29 @@ export default {
     methods: {
         async getFilePreview() {
             this.loading = true;
-            const client = this.onedriveAuthenticationManager.apiClient;
-            let link;
+            let endpoint;
             if (this.path) {
-                link = `/me/drive/root:${this.path}:/preview`;
+                endpoint = `/me/drive/root:${this.path}:/preview`;
+                // endpoint = `/me/drive/root:${this.path}`;
+                // let itemMetadata = await this.onedriveAuthenticationManager.client({ endpoint });
+                // console.log(JSON.stringify(itemMetadata, null, 2));
+                // endpoint = `/me/drive/items/${itemMetadata.id}/preview`;
+                // endpoint = `${itemMetadata.parentReference.path}/${itemMetadata.name}/preview`;
             } else if (this.id) {
                 let id = this.id.match("#") ? this.id.split("#")[1] : this.id;
-                link = `/me/drive/items/${id}/preview`;
+                endpoint = `/me/drive/items/${id}/preview`;
             }
             try {
-                link = await client.api(link).post({
-                    viewer: "onedrive",
-                    chromeless: true,
-                    allowEdit: false,
-                });
+                let request = {
+                    endpoint,
+                    method: "POST",
+                    // body: {
+                    //     viewer: "onedrive",
+                    //     chromeless: true,
+                    //     allowEdit: false,
+                    // },
+                };
+                let link = await this.onedriveAuthenticationManager.client(request);
                 this.link = link.getUrl;
             } catch (error) {
                 this.error = `Preview not available at this time: ${error.message}`;

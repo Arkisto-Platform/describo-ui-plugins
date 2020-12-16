@@ -123,17 +123,19 @@ export default class AuthManager {
         });
     }
 
-    async client({ endpoint }) {
+    async client({ endpoint, method = "GET", body = {} }) {
         const bearer = `Bearer ${this.getToken().accessToken}`;
         endpoint = `${this.graphEndpoint}${endpoint}`;
 
         const headers = new Headers();
         headers.append("Authorization", bearer);
+        headers.append("Content-Type", "application/json");
 
         const options = {
-            method: "GET",
+            method,
             headers: headers,
         };
+        if (method !== "GET") options.body = JSON.stringify(body);
 
         // console.log(`request made to Graph API ${endpoint}: ` + new Date().toString());
 
@@ -141,11 +143,11 @@ export default class AuthManager {
             let response = await fetch(endpoint, options);
             if (response.status !== 200) {
                 //  handle error
-                console.log(response);
+                // console.log("error", response);
             }
             return await response.json();
         } catch (error) {
-            console.log(error);
+            // console.log(error);
         }
     }
 }

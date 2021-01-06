@@ -95,8 +95,11 @@ export default class AuthManager {
         // get user drive
         let drives = await this.client({ endpoint: "/me/drives" });
         drives = drives.value;
-        drives = drives.filter((d) => !d.webUrl.match("PreservationHoldLibrary"));
-
+        try {
+            drives = drives.filter((d) => !d.webUrl.match("PreservationHoldLibrary"));
+        } catch (error) {
+            // likely personal drive so use as is
+        }
         return { drives };
     }
 

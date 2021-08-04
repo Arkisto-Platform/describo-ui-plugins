@@ -8,17 +8,14 @@ export default {
         let log = options.log;
         log.debug("instantiate onedrive auth manager and attach to prototype");
         Vue.prototype.onedriveAuthenticationManager = new AuthManager({
-            clientId: options.clientID,
-            redirectUri: options.redirectURI,
+            configuration: options.configuration,
+            clientId: options.clientId,
+            redirectUri: options.redirectUri,
+            tenantId: options.tenantId,
             log: options.log,
+            httpService: options.$http,
         });
-        Vue.component(
-            "OnedriveAuthenticatorComponent",
-            OnedriveAuthenticatorComponent
-        );
-        Vue.component(
-            "OnedriveFilePreviewComponent",
-            OnedriveFilePreviewComponent
-        );
+        Vue.component("OnedriveAuthenticatorComponent", OnedriveAuthenticatorComponent);
+        Vue.component("OnedriveFilePreviewComponent", OnedriveFilePreviewComponent);
     },
 };

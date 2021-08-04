@@ -1,10 +1,15 @@
 import * as msal from "@azure/msal-browser";
 
 export default class AuthManager {
-    constructor({ clientId, redirectUri, log }) {
+    constructor({ clientId, redirectUri, tenantId, configuration, log, httpService }) {
         this.$log = log;
         this.config = {
-            auth: { clientId, redirectUri },
+            auth: {
+                clientId,
+                redirectUri,
+                authority: `https://login.microsoftonline.com/${tenantId ? tenantId : "common"}`,
+            },
+            configurationEndpoint: configuration,
             cache: {
                 cacheLocation: "sessionStorage",
             },
@@ -22,13 +27,11 @@ export default class AuthManager {
         this.accountKey = "onedriveAccount";
         this.tokenRefreshHandle = undefined;
         this.refreshTokenIn = 50 * 60 * 1000; // 50 minutes in milliseconds
-        this.httpService = undefined;
-        this.api = undefined;
         this.configuration = undefined;
-        this.apiClient = undefined;
         this.msalInstance = undefined;
         let account = this.getAccount();
         this.account = account ? account : undefined;
+        this.httpService = httpService;
     }
 
     getAccount() {
@@ -49,12 +52,9 @@ export default class AuthManager {
             loginHint: this.account?.username,
         };
         let loginResponse;
-        try {
-            loginResponse = await this.msalInstance.ssoSilent(request);
-        } catch (error) {
+        if (!this.account?.name) {
             loginResponse = await this.msalInstance.loginPopup(request);
         }
-
         this.account = this.msalInstance.getAllAccounts().pop();
         window.sessionStorage.setItem(this.accountKey, JSON.stringify(this.account));
 
@@ -62,7 +62,6 @@ export default class AuthManager {
         let token;
         try {
             token = await this.msalInstance.acquireTokenSilent(request);
-            // if (!token) token = await msalInstance.acquireTokenPopup(request);
         } catch (error) {
             token = await this.msalInstance.acquireTokenPopup(request);
         }
@@ -75,13 +74,13 @@ export default class AuthManager {
         this.tokenRefreshHandle = setTimeout(this.refreshToken.bind(this), this.refreshTokenIn);
 
         if (this.httpService && this.api && this.configuration) {
-            this.configuration = {
-                ...this.configuration,
+            let configuration = {
                 token: {
                     access_token: this.getToken().accessToken,
+                    expires: this.getToken().expiresOn,
                 },
             };
-            this.save({});
+            this.save({ configuration });
         }
 
         return { account: this.account, token };
@@ -115,13 +114,11 @@ export default class AuthManager {
         msalApplication.logout(logoutRequest);
     }
 
-    async save({ httpService, api, configuration }) {
+    async save({ configuration }) {
         this.$log.debug("Saving onedrive configuration back to the API");
-        if (httpService) this.httpService = httpService;
-        if (api) this.api = api;
         if (configuration) this.configuration = configuration;
         await this.httpService.post({
-            route: this.api,
+            route: this.config.configurationEndpoint,
             body: this.configuration,
         });
     }

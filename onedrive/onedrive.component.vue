@@ -1,6 +1,6 @@
 <template>
     <div class="flex flex-row">
-        <div class="mr-2">
+        <div>
             <el-button type="primary" @click.prevent="login" :disabled="loggedIn || loggingIn">
                 login to Microsoft OneDrive
             </el-button>
@@ -26,15 +26,9 @@
 </template>
 
 <script>
-import HTTPService from "@/components//http.service";
+import HTTPService from "@/components/http.service";
 
 export default {
-    props: {
-        api: {
-            type: String,
-            required: true,
-        },
-    },
     data() {
         return {
             loggingIn: false,
@@ -62,23 +56,24 @@ export default {
         },
         async saveConfiguration() {
             const drive = this.drives.filter((d) => d.id === this.selectedDrive)[0];
+            let token = this.onedriveAuthenticationManager.getToken();
             let configuration = {
-                type: "onedrive",
+                service: "onedrive",
                 token: {
-                    access_token: this.onedriveAuthenticationManager.getToken().accessToken,
+                    access_token: token.accessToken,
+                    expires: token.expiresOn,
                 },
+                account: token.account,
+                scopes: token.scopes,
                 drive_id: drive.id,
                 drive_type: drive.driveType,
             };
-            const httpService = new HTTPService({ $auth: this.$auth });
-            await this.onedriveAuthenticationManager.save({
-                httpService,
-                api: this.api,
-                configuration,
-            });
+            await this.onedriveAuthenticationManager.save({ configuration });
             this.loggingIn = false;
             this.loggedIn = true;
-            this.$emit("set-resource");
+            this.$store.commit("setTargetResource", {
+                resource: "onedrive",
+            });
         },
     },
 };

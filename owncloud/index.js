@@ -1,5 +1,6 @@
 import OwncloudAuthenticatorComponent from "./owncloud.component.vue";
 import OwncloudCallbackComponent from "./owncloud-callback.component.vue";
+import OwncloudFilePreviewComponent from "./preview.component.vue";
 import AuthManager from "./auth-manager.service";
 
 export default {
@@ -16,6 +17,7 @@ export default {
         });
         Vue.component("OwncloudAuthenticatorComponent", OwncloudAuthenticatorComponent);
         Vue.component("OwncloudCallbackComponent", OwncloudCallbackComponent);
+        Vue.component("OwncloudFilePreviewComponent", OwncloudFilePreviewComponent);
 
         options.router.addRoutes([
             {

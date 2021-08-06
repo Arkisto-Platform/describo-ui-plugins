@@ -48,4 +48,8 @@ export default class AuthManager {
             return response.json();
         }
     }
+
+    getServerInformation() {
+        return JSON.parse(window.sessionStorage.getItem(this.serviceKey));
+    }
 }

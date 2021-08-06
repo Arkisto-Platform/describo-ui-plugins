@@ -4,8 +4,9 @@
         <div class="flex flex-col justify-center items-center h-64" v-if="!link">
             <div v-loading="loading" class="w-10 h-10"></div>
             <div v-if="error" class="flex flex-row">
-                <div class="text-base pt-1">
-                    {{ error }}
+                <div class="text-base pt-1 text-center">
+                    File preview is not available. <br />
+                    If this is a personal onedrive it's not supported at all by Microsoft.
                 </div>
             </div>
         </div>
@@ -53,14 +54,18 @@ export default {
                 let request = {
                     endpoint,
                     method: "POST",
-                    // body: {
-                    //     viewer: "onedrive",
-                    //     chromeless: true,
-                    //     allowEdit: false,
-                    // },
+                    body: {
+                        viewer: "onedrive",
+                        chromeless: true,
+                        allowEdit: false,
+                    },
                 };
                 let link = await this.onedriveAuthenticationManager.client(request);
-                this.link = link.getUrl;
+                if (link.error) {
+                    this.error = true;
+                } else {
+                    this.link = link.getUrl;
+                }
             } catch (error) {
                 this.error = `Preview not available at this time: ${error.message}`;
             }

@@ -18,42 +18,43 @@ export default {
     async mounted() {
         removeSessionSID();
         const okta = this.$store.state.configuration.services.okta;
-        this.$nextTick(function () {
-            this.widget = new OktaSignIn({
-                baseUrl: okta.domain,
-                clientId: okta.clientId,
-                redirectUri: okta.redirectUri,
-                authParams: {
-                    pkce: true,
-                    issuer: okta.issuer,
-                    display: "page",
-                    // responseType: ['id_token', 'token'],
-                    scopes: ["openid", "profile", "email"],
+
+        const signIn = new OktaSignIn({
+            baseUrl: okta.domain,
+            clientId: okta.clientId,
+            redirectUri: okta.redirectUri,
+            authParams: {
+                pkce: true,
+                issuer: okta.issuer,
+                display: "page",
+                // responseType: ['id_token', 'token'],
+                scopes: ["openid", "profile", "email"],
+            },
+            logo: this.$store.state.configuration.logo,
+            i18n: {
+                en: {
+                    "primaryauth.title": this.$store.state.configuration.siteName || "Describo",
                 },
-                logo: this.$store.state.configuration.logo,
-                i18n: {
-                    en: {
-                        "primaryauth.title": this.$store.state.configuration.siteName || "Describo",
-                    },
+            },
+        });
+        try {
+            let tokens = await signIn.showSignInToGetTokens({
+                el: "#okta-signin-container",
+            });
+            // Store tokens
+            await this.$oktaAuth.tokenManager.setTokens(tokens);
+            const user = await this.$oktaAuth.getUser();
+            await this.$http.post({
+                route: "/session/okta",
+                body: {
+                    name: user.name,
+                    email: user.email,
                 },
             });
-            this.widget.renderEl(
-                { el: "#okta-signin-container" },
-                () => {
-                    /**
-                     * In this flow, the success handler will not be called because
-                     * there's a redirect to the Okta org for the authentication workflow.
-                     */
-                },
-                (err) => {
-                    throw err;
-                }
-            );
-        });
-    },
-    destroyed() {
-        // Remove the widget from the DOM on path change
-        this.widget.remove();
+            this.$router.push("/");
+        } catch (error) {
+            console.log(`Unable to log in at this time`);
+        }
     },
 };
 </script>

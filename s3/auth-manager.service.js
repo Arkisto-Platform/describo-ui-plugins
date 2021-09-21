@@ -20,14 +20,11 @@ export default class AuthManager {
 
     async setServer({ server }) {
         // this.$log.debug("Getting owncloud oauth token");
-        console.log(server);
 
         // let server = JSON.parse(window.sessionStorage.getItem(this.serviceKey));
         let response = await this.httpService.post({
             route: this.config.configurationEndpoint,
-            body: {
-                host: server.url,
-            },
+            body: { ...server },
         });
         if (response.status !== 200) {
             console.log(await response.text());

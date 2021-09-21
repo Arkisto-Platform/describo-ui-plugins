@@ -2,7 +2,7 @@
     <div class="flex flex-row">
         <div>
             <el-button type="primary" @click.prevent="login" :disabled="loggedIn || loggingIn">
-                login to Microsoft OneDrive
+                Microsoft OneDrive
             </el-button>
         </div>
         <div v-if="loggingIn" class="flex-grow">

@@ -2,7 +2,7 @@
     <div class="flex flex-col space-y-2">
         <div>
             <el-button type="primary" @click.prevent="getCurrentSession" :disabled="loggingIn">
-                login to ownCloud
+                OwnCloud
             </el-button>
         </div>
         <div v-if="showOwncloudInputForm" class="flex flex-row space-x-2 p-4 border rounded">

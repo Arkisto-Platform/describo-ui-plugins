@@ -2,7 +2,7 @@
     <div class="flex flex-col space-y-2 style-input-form">
         <div>
             <el-button type="primary" @click.prevent="getCurrentSession" :disabled="loggingIn">
-                login to S3
+                AWS S3
             </el-button>
         </div>
         <div v-if="showInputForm" class="flex flex-row space-x-2 p-4 border rounded">

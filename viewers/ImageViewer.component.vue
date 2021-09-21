@@ -1,15 +1,6 @@
 <template>
-    <div>
-        <div>
-            <el-button @click="toggleFullScreen" size="small">
-                <i class="fas fa-expand fa-fw"></i>
-            </el-button>
-        </div>
-        <div class="mt-4">
-            <div>
-                <img :src="link" />
-            </div>
-        </div>
+    <div class="cursor-pointer flex flex-col items-center" @click="toggleFullScreen">
+        <img :src="link" class="w-64 object-contain" />
     </div>
 </template>
 
@@ -30,7 +21,6 @@ export default {
     methods: {
         toggleFullScreen() {
             const viewer = new FullScreenViewer({});
-            console.log(viewer);
             viewer.show(this.link);
         },
     },

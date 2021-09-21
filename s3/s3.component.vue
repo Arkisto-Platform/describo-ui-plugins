@@ -7,13 +7,7 @@
         </div>
         <div v-if="showInputForm" class="flex flex-row space-x-2 p-4 border rounded">
             <div>
-                <el-button
-                    size="small"
-                    @click.prevent="
-                        loggingIn = false;
-                        showInputForm = false;
-                    "
-                >
+                <el-button size="small" @click.prevent="close">
                     <i class="fas fa-times"></i>
                 </el-button>
             </div>
@@ -26,12 +20,13 @@
                 >
                     <el-option
                         v-for="server in servers"
-                        :key="server.url"
+                        :key="server.id"
                         :label="server.name"
-                        :value="server"
-                        :value-key="server.url"
+                        :value="server.id"
                     >
-                        <div>{{ server.name }} ({{ server.url }})</div>
+                        <div>
+                            {{ server.name }} <span v-if="server.url">({{ server.url }})</span>
+                        </div>
                     </el-option>
                 </el-select>
             </div>
@@ -59,7 +54,7 @@ export default {
             this.loggingIn = true;
 
             let { configuration } = await this.s3AuthenticationManager.getConfiguration();
-            this.servers = configuration;
+            this.servers = configuration.map((s, i) => ({ ...s, id: i }));
             if (this.servers.length === 1) {
                 this.selectedServer = this.servers[0];
                 this.login();
@@ -68,14 +63,20 @@ export default {
             }
         },
         async login() {
-            await this.s3AuthenticationManager.setServer({
-                server: this.selectedServer,
-            });
+            const server = this.servers.filter((s) => s.id === this.selectedServer)[0];
+            delete server.id;
+
+            await this.s3AuthenticationManager.setServer({ server });
             this.showInputForm = false;
             this.loggingIn = false;
             this.$store.commit("setTargetResource", {
                 resource: "s3",
             });
+        },
+        close() {
+            this.loggingIn = false;
+            this.showInputForm = false;
+            this.selectedServer = undefined;
         },
     },
 };

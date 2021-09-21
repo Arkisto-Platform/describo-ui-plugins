@@ -1,5 +1,5 @@
 import S3AuthenticatorComponent from "./s3.component.vue";
-// import OwncloudFilePreviewComponent from "./preview.component.vue";
+import S3FilePreviewComponent from "./preview.component.vue";
 import AuthManager from "./auth-manager.service";
 
 export default {
@@ -14,6 +14,6 @@ export default {
             configuration: options.configuration,
         });
         Vue.component("S3AuthenticatorComponent", S3AuthenticatorComponent);
-        // Vue.component("OwncloudFilePreviewComponent", OwncloudFilePreviewComponent);
+        Vue.component("S3FilePreviewComponent", S3FilePreviewComponent);
     },
 };

@@ -21,14 +21,13 @@
                     >
                         <el-option
                             v-for="server in reva"
-                            :key="server.storageUrl"
+                            :key="server.id"
                             :label="server.name"
-                            :value="server"
-                            :value-key="server.storageUrl"
+                            :value="server.id"
                         >
                             <div>
                                 {{ server.name }}
-                                <span v-if="server.storageUrl">({{ server.storageUrl }})</span>
+                                ({{ server.mode }})
                             </div>
                         </el-option>
                     </el-select>
@@ -67,13 +66,16 @@ export default {
     data() {
         return {
             showInputForm: false,
-            username: "",
-            password: "",
+            username: undefined,
+            password: undefined,
             passwordFieldType: "password",
             servers: [],
             selectedServer: undefined,
             loggingIn: false,
-            reva: this.$store.state.configuration.services.reva,
+            reva: this.$store.state.configuration.services.reva.map((s) => ({
+                ...s,
+                id: (Math.random() + 1).toString(36).substring(2),
+            })),
         };
     },
     methods: {
@@ -82,11 +84,21 @@ export default {
             this.showInputForm = true;
         },
         async login() {
-            await this.revaAuthenticationManager.saveServiceConfiguration({
+            let service = this.reva.filter((s) => s.id === this.selectedServer)[0];
+            let { token } = await this.revaAuthenticationManager.authenticate({
+                gateway: service.gateway,
                 username: this.username,
                 password: this.password,
-                url: this.selectedServer.url,
             });
+
+            await this.revaAuthenticationManager.saveServiceConfiguration({
+                mode: service.mode,
+                gateway: service.mode === "api" ? service.gateway : service.webdav,
+                username: service.mode !== "api" ? this.username : "",
+                password: service.mode !== "api" ? this.password : "",
+                token: service.mode === "api" ? token : "",
+            });
+
             this.showInputForm = false;
             this.loggingIn = false;
             this.$store.commit("setTargetResource", {

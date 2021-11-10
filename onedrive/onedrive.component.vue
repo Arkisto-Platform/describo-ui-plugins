@@ -26,8 +26,6 @@
 </template>
 
 <script>
-import HTTPService from "@/components/http.service";
-
 export default {
     data() {
         return {

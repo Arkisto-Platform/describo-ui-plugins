@@ -42,8 +42,11 @@
                     </div>
                 </el-button>
             </div>
-            <el-button @click.prevent="login" size="small">
-                <!-- <i class="fas fa-arrow-right"></i> -->
+            <el-button
+                @click.prevent="login"
+                size="small"
+                :disabled="!selectedServer || !username || !password"
+            >
                 login
             </el-button>
         </div>

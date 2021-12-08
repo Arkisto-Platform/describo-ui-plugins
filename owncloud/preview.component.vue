@@ -1,14 +1,11 @@
 <template>
-    <div class="flex flex-col text-center space-y-4">
-        <div>
-            Unfortunately file previews from owncloud are not possible at this time. However, here's
-            a link to the folder in owncloud that you can open in another window.
-        </div>
-        <div>
+    <div class="flex flex-col text-center space-y-4 p-10">
+        <div>Unfortunately file previews from owncloud are not possible at this time.</div>
+        <!-- <div>
             <a :href="link" target="_blank" class="text-yellow-600"
                 >open the owncloud folder in another window</a
             >
-        </div>
+        </div> -->
     </div>
 </template>
 

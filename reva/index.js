@@ -4,18 +4,16 @@ import RevaLoginComponent from "./login.component.vue";
 import AuthManager from "./auth-manager.service";
 
 export default {
-    install(Vue, options) {
-        Vue.mixin({});
-
+    install(app, options) {
         let log = options.log;
         log.debug("instantiate reva plugin");
-        Vue.prototype.revaAuthenticationManager = new AuthManager({
+        app.config.globalProperties.revaAuthenticationManager = new AuthManager({
             log: options.log,
             httpService: options.$http,
             ...options,
         });
-        Vue.component("RevaAuthenticatorComponent", RevaAuthenticatorComponent);
-        Vue.component("RevaFilePreviewComponent", RevaFilePreviewComponent);
-        Vue.component("RevaLoginComponent", RevaLoginComponent);
+        app.component("RevaAuthenticatorComponent", RevaAuthenticatorComponent);
+        app.component("RevaFilePreviewComponent", RevaFilePreviewComponent);
+        app.component("RevaLoginComponent", RevaLoginComponent);
     },
 };

@@ -2,9 +2,7 @@ import OktaLoginComponent from "./okta-login.component.vue";
 import { OktaAuth } from "@okta/okta-auth-js";
 
 export default {
-    install(Vue, options) {
-        Vue.mixin({});
-
+    install(app, options) {
         let log = options.log;
         log.debug("instantiate okta plugin");
         const oktaAuth = new OktaAuth({
@@ -14,7 +12,7 @@ export default {
             redirectUri: options.redirectUri,
             scopes: ["openid", "profile", "email"],
         });
-        Vue.prototype.$oktaAuth = oktaAuth;
-        Vue.component("OktaLoginComponent", OktaLoginComponent);
+        app.config.globalProperties.$oktaAuth = oktaAuth;
+        app.component("OktaLoginComponent", OktaLoginComponent);
     },
 };

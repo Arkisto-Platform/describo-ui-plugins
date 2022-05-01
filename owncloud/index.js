@@ -4,22 +4,20 @@ import OwncloudFilePreviewComponent from "./preview.component.vue";
 import AuthManager from "./auth-manager.service";
 
 export default {
-    install(Vue, options) {
-        Vue.mixin({});
-
+    install(app, options) {
         let log = options.log;
         log.debug("instantiate owncloud plugin");
-        Vue.prototype.owncloudAuthenticationManager = new AuthManager({
+        app.config.globalProperties.owncloudAuthenticationManager = new AuthManager({
             log: options.log,
             httpService: options.$http,
             configuration: options.configuration,
             oauthToken: options.oauthToken,
         });
-        Vue.component("OwncloudAuthenticatorComponent", OwncloudAuthenticatorComponent);
-        Vue.component("OwncloudCallbackComponent", OwncloudCallbackComponent);
-        Vue.component("OwncloudFilePreviewComponent", OwncloudFilePreviewComponent);
+        app.component("OwncloudAuthenticatorComponent", OwncloudAuthenticatorComponent);
+        app.component("OwncloudCallbackComponent", OwncloudCallbackComponent);
+        app.component("OwncloudFilePreviewComponent", OwncloudFilePreviewComponent);
 
-        options.router.addRoutes([
+        options.router.addRoute([
             {
                 path: "/owncloud-callback",
                 component: OwncloudCallbackComponent,

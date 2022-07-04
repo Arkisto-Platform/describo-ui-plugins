@@ -99,6 +99,8 @@ export default {
             }
         },
         async login() {
+            this.loggingIn = false;
+            this.showInputForm = false;
             const server = this.servers.filter((s) => s.id === this.selectedServer)[0];
             delete server.id;
             server.awsAccessKeyId = this.accessKeyId;
@@ -106,11 +108,10 @@ export default {
             server.region = this.region ? this.region : "us-east-1";
 
             await this.s3AuthenticationManager.setServer({ server });
-            this.showInputForm = false;
-            this.loggingIn = false;
             this.$store.commit("setTargetResource", {
                 resource: "s3",
             });
+            this.close();
         },
         close() {
             this.loggingIn = false;

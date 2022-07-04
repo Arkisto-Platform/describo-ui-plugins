@@ -5,62 +5,70 @@
                 Reva
             </el-button>
         </div>
-        <div v-if="showInputForm" class="flex flex-row space-x-2 p-4 border rounded">
-            <div>
-                <el-button size="small" @click.prevent="close">
-                    <i class="fas fa-times"></i>
-                </el-button>
-            </div>
-            <div class="flex-grow flex flex-col space-y-2">
-                <div>
-                    <el-select
-                        v-model="selectedServer"
-                        placeholder="Select a server to use"
-                        class="w-full"
-                        size="small"
-                    >
-                        <el-option
-                            v-for="server in reva"
-                            :key="server.id"
-                            :label="server.name"
-                            :value="server.id"
+        <div v-if="showInputForm">
+            <Teleport to="#teleport-target-selection">
+                <div class="flex flex-row space-x-2 p-4 border rounded">
+                    <div>
+                        <el-button size="small" @click.prevent="close">
+                            <i class="fas fa-times"></i>
+                        </el-button>
+                    </div>
+                    <div class="flex-grow flex flex-col space-y-2">
+                        <div>
+                            <el-select
+                                v-model="selectedServer"
+                                placeholder="Select a server to use"
+                                class="w-full"
+                                size="small"
+                            >
+                                <el-option
+                                    v-for="server in reva"
+                                    :key="server.id"
+                                    :label="server.name"
+                                    :value="server.id"
+                                >
+                                    <div>
+                                        {{ server.name }}
+                                        ({{ server.mode }})
+                                    </div>
+                                </el-option>
+                            </el-select>
+                        </div>
+                        <div>
+                            <el-input
+                                placeholder="Username"
+                                v-model="username"
+                                size="small"
+                            ></el-input>
+                        </div>
+                        <div class="flex flex-row">
+                            <el-input
+                                placeholder="Password"
+                                :type="passwordFieldType"
+                                v-model="password"
+                                size="small"
+                            ></el-input>
+                            <el-button @click="passwordFieldType = 'text'" size="small">
+                                <div v-show="passwordFieldType === 'password'">
+                                    <i class="fas fa-eye-slash"></i>
+                                </div>
+                                <div v-show="passwordFieldType === 'text'">
+                                    <i class="fas fa-eye"></i>
+                                </div>
+                            </el-button>
+                        </div>
+                    </div>
+                    <div>
+                        <el-button
+                            @click.prevent="login"
+                            size="small"
+                            :disabled="!selectedServer || !username || !password"
                         >
-                            <div>
-                                {{ server.name }}
-                                ({{ server.mode }})
-                            </div>
-                        </el-option>
-                    </el-select>
+                            <i class="fas fa-arrow-right"></i>
+                        </el-button>
+                    </div>
                 </div>
-                <div>
-                    <el-input placeholder="Username" v-model="username" size="small"></el-input>
-                </div>
-                <div class="flex flex-row">
-                    <el-input
-                        placeholder="Password"
-                        :type="passwordFieldType"
-                        v-model="password"
-                        size="small"
-                    ></el-input>
-                    <el-button @click="passwordFieldType = 'text'" size="small">
-                        <div v-show="passwordFieldType === 'password'">
-                            <i class="fas fa-eye-slash"></i>
-                        </div>
-                        <div v-show="passwordFieldType === 'text'">
-                            <i class="fas fa-eye"></i>
-                        </div>
-                    </el-button>
-                </div>
-            </div>
-            <div>
-                <el-button
-                    @click.prevent="login"
-                    size="small"
-                    :disabled="!selectedServer || !username || !password"
-                >
-                    <i class="fas fa-arrow-right"></i>
-                </el-button>
-            </div>
+            </Teleport>
         </div>
     </div>
 </template>
